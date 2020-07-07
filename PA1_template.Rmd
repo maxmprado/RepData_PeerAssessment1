@@ -4,7 +4,9 @@ output:
   html_document:
     keep_md: true
 ---
-
+```{r}
+data <- read.csv("activity.csv")
+```
 
 ## Loading and preprocessing the data
 
