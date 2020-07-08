@@ -51,3 +51,77 @@ Median of steps taken per day.
 median(tapply(data$steps,data$date,sum, na.rm = TRUE))
 ```
 
+
+## What is the average daily activity pattern?
+\
+This is the time series for the mean steps interval.
+\
+```{r}
+
+plot(tapply(data$steps,data$interval,mean,na.rm = TRUE), type = "l",
+     xlab = "Interval", ylab = "mean steps")
+
+```
+\
+5-minute interval that contains the maximum number of steps in average
+```{r}
+which.max(tapply(data$steps,data$interval,mean,na.rm = TRUE))
+```
+\
+## Imputing missing values
+\
+Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+\
+```{r}
+sum(is.na(data))
+```
+\
+Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+```{r}
+means<-tapply(data$steps,data$interval,mean,na.rm = TRUE)
+
+naValbyInterval<- means[as.character(data[which(is.na(data)),][,3])]
+```
+Create a new dataset that is equal to the original dataset but with the missing data filled in.
+
+```{r}
+data_no_NA <- data
+data_no_NA[which(is.na(data)),1] <- naValbyInterval
+```
+Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
+```{r}
+hist(tapply(data_no_NA$steps,data_no_NA$date,sum, na.rm = TRUE),
+     main = "Total number of steps taken per day", 
+     col = "blue", xlab = "",breaks = seq(0,25000, by=2500))
+```
+\
+Mean of steps taken per day.
+```{r}
+mean(tapply(data_no_NA$steps,data_no_NA$date,sum, na.rm = TRUE))
+```
+\
+Median of steps taken per day.
+```{r}
+median(tapply(data_no_NA$steps,data_no_NA$date,sum, na.rm = TRUE))
+```
+
+## Are there differences in activity patterns between weekdays and weekends?
+\
+Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+\
+```{r}
+data$day <- sapply(weekdays(data$date) %in% c("Saturday","Sunday"), 
+        function(x){if(x){
+          return("Weekend")}
+          else return("Weekday")
+        }
+       )
+```
+\
+Make a panel plot containing a time series plot (i.e.type = "l" of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
+```{r}
+plt2<-aggregate(data=data, steps~interval+day, FUN=mean, na.rm=TRUE)
+library(lattice)
+xyplot(steps~interval|day, type = "l",layout =c(1,2) ,data = plt2 )
+```
